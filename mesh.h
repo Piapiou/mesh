@@ -4,23 +4,36 @@
 #include <QMainWindow>
 #include <QObject>
 #include <QVector>
-#include <QVector3D>
+#include "point.h"
+#include <QMatrix4x4>
+#include "vector3d.h"
 #include <QSharedDataPointer>
 #include <QWidget>
 
-class meshData;
-
-class mesh
+class Mesh
 {
 public:
-    mesh();
-    mesh(const mesh &);
-    mesh &operator=(const mesh &);
-    ~mesh();
+    Mesh();
+    Mesh(const Mesh &);
+    static Mesh makeBox(const Point p1, const Point p2);
+    static Mesh makeSphere(const Point center, float rayon, int pointByArc);
+    Mesh operator=(const Mesh &);
+    Point getMiddle();
+    ~Mesh();
+    QVector<Point> getVertices();
+    QVector<Point> getTriangles();
+    float distance(const Point p);
+    void translate(const Point v);
+    void rotate(const QMatrix4x4 m);
+    void scale(float scale);
+    void scale(const Point scale);
+    void merge(const Mesh m);
+    Point insersect(Vector3D v);
+    Point isInside(Vector3D v);
 
 private:
-    QVector<QVector3D> vertices;
-    QVector<QVector3D> triangles;
+    QVector<Point> vertices;
+    QVector<Point> triangles;
 };
 
 #endif // MESH_H

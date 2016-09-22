@@ -4,9 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT       += core gui opengl
 
 TARGET = mesh
 TEMPLATE = app
@@ -14,9 +12,18 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    mesh.cpp
+    mesh.cpp \
+    vector3d.cpp \
+    point.cpp \
+    terrain.cpp \
+    gldisplay.cpp
 
 HEADERS  += mainwindow.h \
-    mesh.h
+    mesh.h \
+    vector3d.h \
+    point.h \
+    terrain.h \
+    gldisplay.h
 
 FORMS    += mainwindow.ui
+LIBS += -lopengl32
