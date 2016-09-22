@@ -28,8 +28,6 @@ public:
     void scale(float scale);
     void scale(const Point scale);
     void merge(const Mesh m);
-    Point insersect(Vector3D v);
-    Point isInside(Vector3D v);
 
 private:
     QVector<Point> vertices;

@@ -25,6 +25,7 @@ protected:
 private:
     void drawSierpinski();
 
+    float _angle2;
     float _angle;
     QPoint _position;
     QVector<Mesh> meshs;

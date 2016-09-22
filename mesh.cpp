@@ -24,9 +24,9 @@ Mesh Mesh::makeBox(const Point p1, const Point p2) {
     m.vertices.append(Point(p1.x(), p1.y(), p2.z()));
     m.vertices.append(Point(p1.x(), p2.y(), p1.z()));
     m.vertices.append(Point(p1.x(), p2.y(), p2.z()));
+    m.vertices.append(Point(p2.x(), p1.y(), p1.z()));
     m.vertices.append(Point(p2.x(), p1.y(), p2.z()));
     m.vertices.append(Point(p2.x(), p2.y(), p1.z()));
-    m.vertices.append(Point(p2.x(), p2.y(), p2.z()));
     m.vertices.append(Point(p2));
 
     m.triangles.append(Point(0,3,1));
@@ -192,16 +192,6 @@ void Mesh::merge(const Mesh m) {
         triangles.append(Point(m.triangles[i].x()+mLength,m.triangles[i].y()+mLength,m.triangles[i].z()+mLength));
 
     }
-}
-
-Point Mesh::isInside(Vector3D v) {
-    /*Point u = v.getP2() - v.getP1();
-    Point w;
-    float D, N;
-
-    // TODO
-
-    return Point();*/
 }
 
 Mesh::~Mesh()

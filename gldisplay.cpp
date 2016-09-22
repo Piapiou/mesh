@@ -8,7 +8,8 @@
 
 GLDisplay::GLDisplay(QWidget *parent) :
     QGLWidget(parent),
-    _angle(0.0f)
+    _angle(0.0f),
+    _angle2(0.0f)
 {
     meshs.append(Mesh::makeBox(Point(-0.5f, -0.5f, -0.5f), Point(0.5f, 0.5f, 0.5f)));
 }
@@ -59,7 +60,7 @@ void GLDisplay::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    glRotatef(_angle, 0.0f, 1.0f, 0.0f);
+    glRotatef(_angle, 0.0f, 1.0f-_angle2, _angle2);
 
     for (int i = 0; i < meshs.length(); i++) {
         drawMesh(meshs[i]);
@@ -80,12 +81,20 @@ void GLDisplay::resizeGL(int w, int h)
 
 }
 
+float min(float a, float b);
+
+float max(float a, float b) {
+    return (a > b) ? a : b;
+}
+
 void GLDisplay::mouseMoveEvent(QMouseEvent *event)
 {
     if( event != NULL ) {
         QPoint position = event->pos();
 
         _angle += (position.x() - _position.x());
+        _angle2 += max(0,min(180,position.y()));
+
 
         _position = position;
 
