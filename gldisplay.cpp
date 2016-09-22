@@ -10,32 +10,48 @@ GLDisplay::GLDisplay(QWidget *parent) :
     QGLWidget(parent),
     _angle(0.0f)
 {
-    printf("WTF ??");
+    meshs.append(Mesh::makeBox(Point(-0.5f, -0.5f, -0.5f), Point(0.5f, 0.5f, 0.5f)));
 }
 
 void GLDisplay::initializeGL()
 {
-    printf("TEST");
     glEnable(GL_DEPTH_TEST);
+
     glEnable(GL_CULL_FACE);
+
     glFrontFace(GL_CCW);
+
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
     glColor3f(1.0, 1.0, 0.0);
 
-    meshs.append(Mesh::makeSphere(Point(0.0f, 0.0f, 0.0f), 1.0f, 20));
+    glBegin(GL_TRIANGLES);
 
+    glVertex3f(1.0f,1.0f,1.0f);
+    glVertex3f(1.0f,0.0f,1.0f);
+    glVertex3f(1.0f,1.0f,0.0f);
+    glEnd();
 }
 
 void drawMesh(Mesh m) {
     QVector<Point> points = m.getVertices();
     QVector<Point> triangles = m.getTriangles();
+    float color = 0.0f;
 
     glBegin(GL_TRIANGLES);
     for (int i = 0; i < triangles.length(); i++) {
-        glVertex3f(points[triangles[i].x()].x(), points[triangles[i].x()].z(), points[triangles[i].x()].z());
-        glVertex3f(points[triangles[i].y()].x(), points[triangles[i].y()].z(), points[triangles[i].y()].z());
-        glVertex3f(points[triangles[i].x()].z(), points[triangles[i].z()].z(), points[triangles[i].z()].z());
+        glColor3f(1.0, 1.0-color, color);
+        color += 0.1f;
+        glVertex3f(points[(int)triangles[i].x()].x(), points[(int)triangles[i].x()].y(), points[(int)triangles[i].x()].z());
+        glVertex3f(points[(int)triangles[i].y()].x(), points[(int)triangles[i].y()].y(), points[(int)triangles[i].y()].z());
+        glVertex3f(points[(int)triangles[i].z()].x(), points[(int)triangles[i].z()].y(), points[(int)triangles[i].z()].z());
+        printf("(%f,%f,%f)",points[(int)triangles[i].x()].x(), points[(int)triangles[i].x()].y(), points[(int)triangles[i].x()].z());
+        printf("(%f,%f,%f)",points[(int)triangles[i].y()].x(), points[(int)triangles[i].y()].y(), points[(int)triangles[i].y()].z());
+        printf("(%f,%f,%f)",points[(int)triangles[i].z()].x(), points[(int)triangles[i].z()].y(), points[(int)triangles[i].z()].z());
+        printf("\n");
+
     }
+    printf("----\n");
     glEnd();
 }
 
@@ -45,8 +61,9 @@ void GLDisplay::paintGL()
     glLoadIdentity();
     glRotatef(_angle, 0.0f, 1.0f, 0.0f);
 
-    for (int i = 0; i < meshs.length(); i++)
+    for (int i = 0; i < meshs.length(); i++) {
         drawMesh(meshs[i]);
+    }
 }
 
 void GLDisplay::resizeGL(int w, int h)

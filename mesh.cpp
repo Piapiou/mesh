@@ -190,6 +190,7 @@ void Mesh::merge(const Mesh m) {
     vertices.append(m.vertices);
     for (int i = 0; i < m.triangles.length(); i++) {
         triangles.append(Point(m.triangles[i].x()+mLength,m.triangles[i].y()+mLength,m.triangles[i].z()+mLength));
+
     }
 }
 
@@ -205,6 +206,5 @@ Point Mesh::isInside(Vector3D v) {
 
 Mesh::~Mesh()
 {
-    delete &vertices;
-    delete &triangles;
+
 }

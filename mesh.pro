@@ -25,5 +25,8 @@ HEADERS  += mainwindow.h \
     terrain.h \
     gldisplay.h
 
-FORMS    += mainwindow.ui
+
 LIBS += -lopengl32
+
+FORMS += \
+    mainwindow.ui
