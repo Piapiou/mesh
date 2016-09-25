@@ -3,13 +3,13 @@
 
 #include <QVector>
 #include "point.h"
-#include "terrain.h"
+#include "mesh.h"
 #include <QImage>
 
 class Terrain
 {
 public:
-    Terrain(QImage img, Point a, Point b, float zMin, float zMax);
+    Terrain(const Point p1, const Point p2, float zMin, float zMax, int length, int width);
     Mesh toMesh();
     saveImg();
 

@@ -49,57 +49,43 @@ Mesh Mesh::makeSphere(const Point center, float rayon, int pointByArc) {
     Mesh m = Mesh();
     float step = PI/pointByArc;
     float is = -PI/2;
-    float ib = -PI;
+    float ib = 0;
 
 
-    int PreviousSmallLoop = 0;
-    int PreviousBigLoop = 0;
-
-    m.vertices.append(Point(rayon*cos(is)*cos(ib)+center.x(),
-                              rayon*cos(is)*sin(ib)+center.y(),
-                              rayon*sin(ib)+center.z()));
-
-    for(is = -PI/2+step; is < PI/2; is += step) {
-        m.vertices.append(Point(rayon*cos(is)*cos(ib)+center.x(),
-                                  rayon*cos(is)*sin(ib)+center.y(),
-                                  rayon*sin(ib)+center.z()));
-        PreviousSmallLoop++;
+    for(is = -PI/2; is < PI/2+step; is += step) {
+        m.vertices.append(Point(rayon*cos(ib)*(cos(is))+center.x(),
+                                  rayon*sin(ib)*(cos(is))+center.y(),
+                                  rayon*sin(is)+center.z()));
     }
 
+    int bigLoop = 0;
+    int smallLoop = 0;
 
-    for (ib = -PI+step; ib < PI; ib += step) {
+    for (ib = step; ib <= 2*PI; ib += step) {
+        is = -PI/2;
+        m.vertices.append(Point(rayon*cos(ib)*(cos(is))+center.x(),
+                                  rayon*sin(ib)*(cos(is))+center.y(),
+                                  rayon*sin(is)+center.z()));
 
-        m.vertices.append(Point(rayon*cos(is)*cos(ib)+center.x(),
-                                  rayon*cos(is)*sin(ib)+center.y(),
-                                  rayon*sin(ib)+center.z()));
-        PreviousSmallLoop++;
+        for(is = -PI/2+step; is < PI/2+step; is += step) {
 
-        for(is = -PI/2+step; is < PI/2; is += step) {
-            m.vertices.append(Point(rayon*cos(is)*cos(ib)+center.x(),
-                                      rayon*cos(is)*sin(ib)+center.y(),
-                                      rayon*sin(ib)+center.z()));
+            m.vertices.append(Point(rayon*cos(ib)*(cos(is))+center.x(),
+                                      rayon*sin(ib)*(cos(is))+center.y(),
+                                      rayon*sin(is)+center.z()));
 
-            m.triangles.append(Point(PreviousBigLoop, PreviousBigLoop+1, PreviousSmallLoop));
-            m.triangles.append(Point(PreviousBigLoop, PreviousSmallLoop, PreviousSmallLoop+1));
+            m.triangles.append(Point((smallLoop)+(bigLoop)*(pointByArc+1), (smallLoop+1)+(bigLoop+1)*(pointByArc+1), (smallLoop)+(bigLoop+1)*(pointByArc+1)));
+            m.triangles.append(Point((smallLoop)+(bigLoop)*(pointByArc+1), (smallLoop+1)+(bigLoop)*(pointByArc+1), (smallLoop+1)+(bigLoop+1)*(pointByArc+1)));
 
-            PreviousSmallLoop++;
-            PreviousBigLoop++;
+            smallLoop++;
         }
-        PreviousBigLoop++;
+        smallLoop = 0;
+        bigLoop++;
     }
 
-    PreviousSmallLoop = 0;
-
-    for(is = -PI/2+step; is < PI/2; is += step) {
-        m.vertices.append(Point(rayon*cos(is)*cos(ib)+center.x(),
-                                  rayon*cos(is)*sin(ib)+center.y(),
-                                  rayon*sin(ib)+center.z()));
-
-        m.triangles.append(Point(PreviousBigLoop, PreviousBigLoop+1, PreviousSmallLoop));
-        m.triangles.append(Point(PreviousBigLoop, PreviousSmallLoop, PreviousSmallLoop+1));
-
-        PreviousSmallLoop++;
-        PreviousBigLoop++;
+    for(is = -PI/2; is < PI/2; is += step) {
+        m.triangles.append(Point((smallLoop)+(bigLoop)*(pointByArc+1), (smallLoop+1), (smallLoop)));
+        m.triangles.append(Point((smallLoop)+(bigLoop)*(pointByArc+1), (smallLoop+1)+(bigLoop)*(pointByArc+1), (smallLoop+1)));
+        smallLoop++;
     }
 
     return m;
@@ -132,6 +118,15 @@ QVector<Point> Mesh::getVertices() {
 QVector<Point> Mesh::getTriangles() {
     return triangles;
 }
+
+Mesh::addVertice(Point v) {
+    vertices.append(Point(v));
+}
+
+Mesh::addTriangle(Point t) {
+    triangles.append(Point(t));
+}
+
 
 float min(float a, float b) {
     return (b<a)?b:a;

@@ -22,6 +22,8 @@ public:
     ~Mesh();
     QVector<Point> getVertices();
     QVector<Point> getTriangles();
+    addVertice(Point v);
+    addTriangle(Point t);
     float distance(const Point p);
     void translate(const Point v);
     void rotate(const QMatrix4x4 m);
