@@ -16,17 +16,22 @@ SOURCES += main.cpp\
     vector3d.cpp \
     point.cpp \
     terrain.cpp \
-    gldisplay.cpp
+    gldisplay.cpp \
+    triangle.cpp
 
 HEADERS  += mainwindow.h \
     mesh.h \
     vector3d.h \
     point.h \
     terrain.h \
-    gldisplay.h
+    gldisplay.h \
+    triangle.h
 
 
 LIBS += -lopengl32
 
 FORMS += \
     mainwindow.ui
+
+RESOURCES += \
+    rsc.qrc

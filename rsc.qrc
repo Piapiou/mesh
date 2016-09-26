@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/mesh">
+        <file>queen.off</file>
+    </qresource>
+</RCC>

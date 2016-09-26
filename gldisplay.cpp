@@ -6,14 +6,19 @@
 #include <math.h>
 #include <terrain.h>
 
-#define FRUSTUM_SIZE 1.5f
+#define FRUSTUM_SIZE 1.0f
 
 GLDisplay::GLDisplay(QWidget *parent) :
     QGLWidget(parent),
     _angle(0.0f),
-    _angle2(0.0f)
+    _angle2(240.0f)
 {
-    meshs.append(Terrain(Point(-1.0f,-1.0f,-1.0f), Point(1.0f,1.0f,-1.0f), -0.1f, 0.1f, 20, 20).toMesh());
+    /*Mesh m = Mesh::makeCone(Point(0.0f,0.0f,-1.0f), 2.0f, 1.0f, 20);
+    m.merge(Terrain(Point(-2.0f,-2.0f,-1.25f),Point(2.0f,2.0f,-1.25f),-0.1f,0.1f,50,50).toMesh());
+    m.merge(Mesh::makeSphere(Point(0.0f,0.0f,1.0f), 0.5f, 20));
+    m.merge(Mesh::makeCylinder(Point(0.0f,0.0f,-1.25f), 0.5f, 0.5f, 20));
+    meshs.append(m);*/
+    meshs.append(Mesh("C:/Users/toshiba/M2/Geometrie/mesh/queen.off"));
 }
 
 void GLDisplay::initializeGL()
@@ -38,17 +43,16 @@ void GLDisplay::initializeGL()
 
 void drawMesh(Mesh m) {
     QVector<Point> points = m.getVertices();
-    QVector<Point> triangles = m.getTriangles();
+    QVector<Triangle> triangles = m.getTriangles();
     float color = 0.0f;
 
     glBegin(GL_TRIANGLES);
     for (int i = 0; i < triangles.length(); i++) {
         glColor3f(1.0f, color, color);
-        color = (color+1.0f/10);
-        color = (color > 1.0f) ? color-1.0f : color;
-        glVertex3f(points[(int)triangles[i].x()].x(), points[(int)triangles[i].x()].y(), points[(int)triangles[i].x()].z());
-        glVertex3f(points[(int)triangles[i].y()].x(), points[(int)triangles[i].y()].y(), points[(int)triangles[i].y()].z());
-        glVertex3f(points[(int)triangles[i].z()].x(), points[(int)triangles[i].z()].y(), points[(int)triangles[i].z()].z());
+        color = (color+1.0f/triangles.length());
+        glVertex3f(points[triangles[i].x()].x(), points[triangles[i].x()].y(), points[triangles[i].x()].z());
+        glVertex3f(points[triangles[i].y()].x(), points[triangles[i].y()].y(), points[triangles[i].y()].z());
+        glVertex3f(points[triangles[i].z()].x(), points[triangles[i].z()].y(), points[triangles[i].z()].z());
     }
     glEnd();
 }
@@ -105,3 +109,19 @@ void GLDisplay::mousePressEvent(QMouseEvent *event)
     if( event != NULL )
         _position = event->pos();
 }
+
+void GLDisplay::keyPressEvent ( QKeyEvent * event ) {
+    switch (event->key()) {
+    case Qt::Key_Z :
+        break;
+    case Qt::Key_S :
+        break;
+    case Qt::Key_D :
+        break;
+    case Qt::Key_Q :
+        break;
+    default:
+        break;
+    }
+}
+

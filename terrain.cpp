@@ -18,7 +18,6 @@ Terrain::Terrain(const Point p1, const Point p2, float zMin, float zMax, int len
 
     for(int i = 0; i < bedrock.length(); i++){
         bedrock[i] = zMin + (float)rand()/(RAND_MAX/(zMax-zMin)) ;
-        printf("%f\n", bedrock[i]);
     }
 
 
@@ -53,8 +52,8 @@ Mesh Terrain::toMesh() {
         m.addVertice(Point(b.x()-a.x()*((float)i/length)+a.x(),(b.y()-a.y())*((float)j/width)+a.y(), a.z()+bedrock[i*length]+soil[i*length]));
         for (int j = 1; j < width; j++) {
             m.addVertice(Point(b.x()-a.x()*((float)i/length)+a.x(),(b.y()-a.y())*((float)j/width)+a.y(), a.z()+bedrock[j+i*length]+soil[j+i*length]));
-            m.addTriangle(Point((i-1)*width+j-1,i*width+j-1,i*width+j));
-            m.addTriangle(Point((i-1)*width+j-1,i*width+j,(i-1)*width+j));
+            m.addTriangle(Triangle((i-1)*width+j-1,i*width+j,i*width+j-1));
+            m.addTriangle(Triangle((i-1)*width+j-1,(i-1)*width+j,i*width+j));
         }
     }
 

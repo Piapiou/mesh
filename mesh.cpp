@@ -1,6 +1,9 @@
 #include "mesh.h"
 #include <math.h>
 #include <limits>
+#include <QFile>
+#include <QTextStream>
+#include <QMessageBox>
 
 #define PI 3.14159265
 
@@ -8,13 +11,46 @@
 Mesh::Mesh()
 {
     vertices = QVector<Point>();
-    triangles = QVector<Point>();
+    triangles = QVector<Triangle>();
 }
 
 Mesh::Mesh(const Mesh &rhs)
 {
     vertices = QVector<Point>(rhs.vertices);
-    triangles = QVector<Point>(rhs.triangles);
+    triangles = QVector<Triangle>(rhs.triangles);
+}
+
+Mesh::Mesh(QString fileName) {
+    QFile file(fileName);
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        vertices = QVector<Point>();
+        triangles = QVector<Triangle>();
+
+        QString line = in.readLine();
+        line = in.readLine();
+        QStringList fields = line.split(" ");
+
+        int nVert = fields.at(0).toInt();
+        int nPol = fields.at(1).toInt();
+
+
+        for (int i = 0; i < nVert; i++) {
+            line = in.readLine();
+            fields = line.split(" ");
+            vertices.append(Point(fields.at(0).toFloat(),fields.at(1).toFloat(),fields.at(2).toFloat()));
+        }
+
+
+        for (int i = 0; i < nPol; i++) {
+            line = in.readLine();
+            fields = line.split(" ");
+            triangles.append(Triangle(fields.at(1).toInt(),fields.at(2).toInt(),fields.at(3).toInt()));
+        }
+   } else {
+        printf("Error file open\n");
+   }
+
 }
 
 Mesh Mesh::makeBox(const Point p1, const Point p2) {
@@ -29,18 +65,18 @@ Mesh Mesh::makeBox(const Point p1, const Point p2) {
     m.vertices.append(Point(p2.x(), p2.y(), p1.z()));
     m.vertices.append(Point(p2));
 
-    m.triangles.append(Point(0,3,1));
-    m.triangles.append(Point(0,2,3));
-    m.triangles.append(Point(2,7,3));
-    m.triangles.append(Point(2,6,7));
-    m.triangles.append(Point(0,6,2));
-    m.triangles.append(Point(0,4,6));
-    m.triangles.append(Point(3,5,1));
-    m.triangles.append(Point(3,7,5));
-    m.triangles.append(Point(6,5,7));
-    m.triangles.append(Point(6,4,5));
-    m.triangles.append(Point(4,1,5));
-    m.triangles.append(Point(4,0,1));
+    m.triangles.append(Triangle(0,3,1));
+    m.triangles.append(Triangle(0,2,3));
+    m.triangles.append(Triangle(2,7,3));
+    m.triangles.append(Triangle(2,6,7));
+    m.triangles.append(Triangle(0,6,2));
+    m.triangles.append(Triangle(0,4,6));
+    m.triangles.append(Triangle(3,5,1));
+    m.triangles.append(Triangle(3,7,5));
+    m.triangles.append(Triangle(6,5,7));
+    m.triangles.append(Triangle(6,4,5));
+    m.triangles.append(Triangle(4,1,5));
+    m.triangles.append(Triangle(4,0,1));
 
     return m;
 }
@@ -73,8 +109,8 @@ Mesh Mesh::makeSphere(const Point center, float rayon, int pointByArc) {
                                       rayon*sin(ib)*(cos(is))+center.y(),
                                       rayon*sin(is)+center.z()));
 
-            m.triangles.append(Point((smallLoop)+(bigLoop)*(pointByArc+1), (smallLoop+1)+(bigLoop+1)*(pointByArc+1), (smallLoop)+(bigLoop+1)*(pointByArc+1)));
-            m.triangles.append(Point((smallLoop)+(bigLoop)*(pointByArc+1), (smallLoop+1)+(bigLoop)*(pointByArc+1), (smallLoop+1)+(bigLoop+1)*(pointByArc+1)));
+            m.triangles.append(Triangle((smallLoop)+(bigLoop)*(pointByArc+1), (smallLoop+1)+(bigLoop+1)*(pointByArc+1), (smallLoop)+(bigLoop+1)*(pointByArc+1)));
+            m.triangles.append(Triangle((smallLoop)+(bigLoop)*(pointByArc+1), (smallLoop+1)+(bigLoop)*(pointByArc+1), (smallLoop+1)+(bigLoop+1)*(pointByArc+1)));
 
             smallLoop++;
         }
@@ -83,10 +119,62 @@ Mesh Mesh::makeSphere(const Point center, float rayon, int pointByArc) {
     }
 
     for(is = -PI/2; is < PI/2; is += step) {
-        m.triangles.append(Point((smallLoop)+(bigLoop)*(pointByArc+1), (smallLoop+1), (smallLoop)));
-        m.triangles.append(Point((smallLoop)+(bigLoop)*(pointByArc+1), (smallLoop+1)+(bigLoop)*(pointByArc+1), (smallLoop+1)));
+        m.triangles.append(Triangle((smallLoop)+(bigLoop)*(pointByArc+1), (smallLoop+1), (smallLoop)));
+        m.triangles.append(Triangle((smallLoop)+(bigLoop)*(pointByArc+1), (smallLoop+1)+(bigLoop)*(pointByArc+1), (smallLoop+1)));
         smallLoop++;
     }
+
+    return m;
+}
+
+Mesh Mesh::makeCylinder(const Point center, float height, float rayon, int pointByArc) {
+    Mesh m = Mesh();
+    m.vertices.append(Point(center));
+    m.vertices.append(Point(center.x(),center.y(),center.z()+height));
+
+    float step = PI/pointByArc;
+    int current = 2;
+
+    for (float i = step; i < 2*PI; i += step) {
+        m.vertices.append(Point(rayon*cos(i)+center.x(), rayon*sin(i)+center.y(), center.z()));
+        m.vertices.append(Point(rayon*cos(i)+center.x(), rayon*sin(i)+center.y(), center.z()+height));
+        m.triangles.append(Triangle(0,current,current+2));
+        m.triangles.append(Triangle(current,current+3,current+2));
+        m.triangles.append(Triangle(current,current+1,current+3));
+        m.triangles.append(Triangle(1,current+3,current+1));
+        current += 2;
+    }
+
+
+    m.vertices.append(Point(rayon*cos(2*PI)+center.x(), rayon*sin(2*PI)+center.y(), center.z()));
+    m.vertices.append(Point(rayon*cos(2*PI)+center.x(), rayon*sin(2*PI)+center.y(), center.z()+height));
+    m.triangles.append(Triangle(0,current,2));
+    m.triangles.append(Triangle(current,3,2));
+    m.triangles.append(Triangle(current,current+1,3));
+    m.triangles.append(Triangle(1,3,current+1));
+
+    return m;
+}
+
+Mesh Mesh::makeCone(const Point center, float height, float rayon, int pointByArc) {
+    Mesh m = Mesh();
+    m.vertices.append(Point(center));
+    m.vertices.append(Point(center.x(),center.y(),center.z()+height));
+
+    float step = PI/pointByArc;
+    int current = 2;
+
+    for (float i = step; i < 2*PI; i += step) {
+        m.vertices.append(Point(rayon*cos(i)+center.x(), rayon*sin(i)+center.y(), center.z()));
+        m.triangles.append(Triangle(0,current,current+1));
+        m.triangles.append(Triangle(1,current+1,current));
+        current += 1;
+    }
+
+
+    m.vertices.append(Point(rayon*cos(2*PI)+center.x(), rayon*sin(2*PI)+center.y(), center.z()));
+    m.triangles.append(Triangle(0,current,2));
+    m.triangles.append(Triangle(1,2,current));
 
     return m;
 }
@@ -95,7 +183,7 @@ Mesh Mesh::operator=(const Mesh &rhs)
 {    
     Mesh m = Mesh();
     m.vertices = QVector<Point>(rhs.vertices);
-    m.triangles = QVector<Point>(rhs.triangles);
+    m.triangles = QVector<Triangle>(rhs.triangles);
     return m;
 }
 
@@ -115,16 +203,16 @@ QVector<Point> Mesh::getVertices() {
     return vertices;
 }
 
-QVector<Point> Mesh::getTriangles() {
+QVector<Triangle> Mesh::getTriangles() {
     return triangles;
 }
 
-Mesh::addVertice(Point v) {
+void Mesh::addVertice(Point v) {
     vertices.append(Point(v));
 }
 
-Mesh::addTriangle(Point t) {
-    triangles.append(Point(t));
+void Mesh::addTriangle(Triangle t) {
+    triangles.append(Triangle(t));
 }
 
 
@@ -180,12 +268,12 @@ void Mesh::translate(const Point v) {
     }
 }
 
-void Mesh::merge(const Mesh m) {
-    int mLength = m.vertices.length();
+void Mesh::merge(Mesh m) {
+    printf("%d\n",m.vertices.length());
+    int mLength = vertices.length();
     vertices.append(m.vertices);
     for (int i = 0; i < m.triangles.length(); i++) {
-        triangles.append(Point(m.triangles[i].x()+mLength,m.triangles[i].y()+mLength,m.triangles[i].z()+mLength));
-
+        triangles.append(Triangle(m.triangles[i].x()+mLength, m.triangles[i].y()+mLength, m.triangles[i].z()+mLength));
     }
 }
 

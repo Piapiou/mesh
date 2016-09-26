@@ -5,6 +5,7 @@
 #include <mesh.h>
 #include <QMouseEvent>
 #include <QVector>
+#include <QKeyEvent>
 
 class GLDisplay : public QGLWidget
 {
@@ -21,6 +22,7 @@ public:
 protected:
     virtual void mouseMoveEvent ( QMouseEvent * event );
     virtual void mousePressEvent ( QMouseEvent * event );
+    virtual void keyPressEvent ( QKeyEvent * event );
 
 private:
     void drawSierpinski();
