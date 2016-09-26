@@ -45,7 +45,7 @@ Mesh::Mesh(QString fileName) {
         for (int i = 0; i < nPol; i++) {
             line = in.readLine();
             fields = line.split(" ");
-            triangles.append(Triangle(fields.at(1).toInt(),fields.at(2).toInt(),fields.at(3).toInt()));
+            triangles.append(Triangle(fields.at(1).toInt(),fields.at(3).toInt(),fields.at(2).toInt()));
         }
    } else {
         printf("Error file open\n");

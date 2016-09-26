@@ -18,7 +18,7 @@ GLDisplay::GLDisplay(QWidget *parent) :
     m.merge(Mesh::makeSphere(Point(0.0f,0.0f,1.0f), 0.5f, 20));
     m.merge(Mesh::makeCylinder(Point(0.0f,0.0f,-1.25f), 0.5f, 0.5f, 20));
     meshs.append(m);*/
-    meshs.append(Mesh("C:/Users/toshiba/M2/Geometrie/mesh/queen.off"));
+    meshs.append(Mesh(":/mesh/queen.off"));
 }
 
 void GLDisplay::initializeGL()
