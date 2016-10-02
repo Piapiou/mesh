@@ -3,34 +3,14 @@
 #include <QImage>
 
 float convo(QImage img, float x, float y) {
-    /*float dx = 1-(x - (int)x);
+    float dx = 1-(x - (int)x);
     float dy = 1-(y - (int)y);
-    //float pixel1 = (float)img.pixelColor((int)x%img.width(),(int)y%img.height()).red()*dx*dy;
-    //float pixel2 = (float)img.pixelColor((int)(x+1)%img.width(),(int)y%img.height()).red()*(1.0-dx)*dy;
-    //float pixel3 = (float)img.pixelColor((int)x%img.width(),(int)(y+1)%img.height()).red()*dx*(1.0-dy);
-    //float pixel4 = (float)img.pixelColor((int)(x+1)%img.width(),(int)(y+1)%img.height()).red()*(1.0-dx)*(1.0-dy);
+    float pixel1 = (float)img.pixelColor((int)x%img.width(),(int)y%img.height()).red()*dx*dy;
+    float pixel2 = (float)img.pixelColor((int)(x+1)%img.width(),(int)y%img.height()).red()*(1.0-dx)*dy;
+    float pixel3 = (float)img.pixelColor((int)x%img.width(),(int)(y+1)%img.height()).red()*dx*(1.0-dy);
+    float pixel4 = (float)img.pixelColor((int)(x+1)%img.width(),(int)(y+1)%img.height()).red()*(1.0-dx)*(1.0-dy);
 
-    Point p11 = Point(x, y, (float)img.pixelColor((int)x%img.width(),(int)y%img.height()).red());
-    Point p21 = Point(x+1, y, (float)img.pixelColor((int)(x+1)%img.width(),(int)y%img.height()).red());
-    Point p12 = Point(x, y+1, (float)img.pixelColor((int)x%img.width(),(int)(y+1)%img.height()).red());
-    Point p22 = Point(x+1, y+1, (float)img.pixelColor((int)(x+1)%img.width(),(int)(y+1)%img.height()).red());
-
-    Point p11_21 = Point();
-
-    Point p11_21_1 = Point(x+0.5, y, (float)img.pixelColor((int)x%img.width(),(int)y%img.height()).red());
-    Point p11_21_2 = Point(x+0.5, y, (float)img.pixelColor((int)(x+1)%img.width(),(int)y%img.height()).red());
-
-    Point p11_12_1 = Point(x, y+0.5, (float)img.pixelColor((int)x%img.width(),(int)y%img.height()).red());
-    Point p11_12_2 = Point(x, y+0.5, (float)img.pixelColor((int)x%img.width(),(int)(y+1)%img.height()).red());
-
-    Point p22_21_1 = Point(x+1, y+0.5, (float)img.pixelColor((int)(x+1)%img.width(),(int)(y+1)%img.height()).red());
-    Point p22_21_2 = Point(x+1, y+0.5, (float)img.pixelColor((int)x%img.width(),(int)(y+1)%img.height()).red());
-
-    Point p22_12_1 = Point(x+0.5, y+1, (float)img.pixelColor((int)(x+1)%img.width(),(int)(y+1)%img.height()).red());
-    Point p22_12_2 = Point(x+0.5, y+1, (float)img.pixelColor((int)(x+1)%img.width(),(int)y%img.height()).red());
-    */
-
-    return 0;
+    return pixel1 + pixel2 + pixel3 + pixel4;
 }
 
 Terrain::Terrain(const Point p1, const Point p2, float zMin, float zMax, int length, int width)

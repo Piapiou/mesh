@@ -6,12 +6,15 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    return a.exec();
-//    Mesh m = Terrain(Point(-2000.0f,-2000.0f,0.0f),Point(2000.0f,2000.0f,0.0f),-200.0f,200.0f,1024,1024).toMesh();
-//    m.toOBJ("C:/Users/toshiba/Desktop/test.obj");
+    // Pour les TP de maillage et modé
+//    QApplication a(argc, argv);
+//    MainWindow w;
+//    w.show();
+//    return a.exec();
 
-//    return 0;
+    // Pour les TP de modélisation avancé.
+    Mesh m = Terrain(Point(-2000.0f,-2000.0f,0.0f),Point(2000.0f,2000.0f,0.0f),-500.0f,500.0f,1024,1024).toMesh();
+    m.toOBJ("C:/Users/toshiba/Desktop/test.obj");
+
+    return 0;
 }
