@@ -33,6 +33,8 @@ public:
     void scale(float scale);
     void scale(const Point scale);
     void merge(Mesh m);
+    void setAdjTri();
+    void toOBJ(QString filePath);
 
 private:
     QVector<Point> vertices;

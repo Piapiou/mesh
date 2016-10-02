@@ -22,7 +22,7 @@ Mesh::Mesh(const Mesh &rhs)
 
 Mesh::Mesh(QString fileName) {
     QFile file(fileName);
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);
         vertices = QVector<Point>();
         triangles = QVector<Triangle>();
@@ -269,11 +269,83 @@ void Mesh::translate(const Point v) {
 }
 
 void Mesh::merge(Mesh m) {
-    printf("%d\n",m.vertices.length());
     int mLength = vertices.length();
     vertices.append(m.vertices);
     for (int i = 0; i < m.triangles.length(); i++) {
         triangles.append(Triangle(m.triangles[i].x()+mLength, m.triangles[i].y()+mLength, m.triangles[i].z()+mLength));
+    }
+}
+
+void Mesh::setAdjTri() {
+
+    QMap<QPair<int,int>,QPair<int,int>> mmap = QMap<QPair<int,int>,QPair<int,int>>();
+    for (int i = 0; i < triangles.length(); i++) {
+
+        QPair<int,int> t3 = mmap.find(QPair<int,int>(triangles[i].x(),triangles[i].y())).value();
+        if (!t3.second)
+            t3 = mmap.find(QPair<int,int>(triangles[i].y(),triangles[i].x())).value();
+        if (t3.second) {
+            triangles[i].setAdj3(t3.first);
+            switch (t3.second) {
+            case 1 : triangles[t3.first].setAdj1(i); break;
+            case 2 : triangles[t3.first].setAdj2(i); break;
+            default : triangles[t3.first].setAdj3(i);
+            }
+        } else {
+            mmap.insert(QPair<int,int>(triangles[i].x(),triangles[i].y()),QPair<int,int>(i,3));
+        }
+
+        QPair<int,int> t2 = mmap.find(QPair<int,int>(triangles[i].x(),triangles[i].z())).value();
+        if (!t2.second)
+            t2 = mmap.find(QPair<int,int>(triangles[i].z(),triangles[i].x())).value();
+
+        if (t2.second) {
+            triangles[i].setAdj2(t2.first);
+            switch (t2.second) {
+            case 1 : triangles[t2.first].setAdj1(i); break;
+            case 2 : triangles[t2.first].setAdj2(i); break;
+            default : triangles[t2.first].setAdj3(i);
+            }
+        } else {
+            mmap.insert(QPair<int,int>(triangles[i].x(),triangles[i].z()),QPair<int,int>(i,2));
+        }
+
+
+        QPair<int,int> t1 = mmap.find(QPair<int,int>(triangles[i].y(),triangles[i].z())).value();
+        if (!t1.second)
+            t1 = mmap.find(QPair<int,int>(triangles[i].z(),triangles[i].y())).value();
+
+        if (t1.second) {
+            triangles[i].setAdj1(t1.first);
+            switch (t1.second) {
+            case 1 : triangles[t1.first].setAdj1(i); break;
+            case 2 : triangles[t1.first].setAdj2(i); break;
+            default : triangles[t1.first].setAdj3(i);
+            }
+        } else {
+            mmap.insert(QPair<int,int>(triangles[i].y(),triangles[i].z()),QPair<int,int>(i,1));
+        }
+
+
+    }
+
+}
+
+void Mesh::toOBJ(QString filePath) {
+    fprintf(stderr,"Export obj to %s...\n",filePath);
+    QFile file(filePath);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream stream( &file );
+        stream << "o mesh" << endl << endl;
+        for (int i = 0; i < vertices.length(); i++) {
+            stream << "v " << vertices[i].x() << " " << vertices[i].y() << " " << vertices[i].z() << endl;
+        }
+
+        for (int i = 0; i < triangles.length(); i++) {
+            stream << "f " << triangles[i].x()+1 << "// " << triangles[i].y()+1 << "// " << triangles[i].z()+1 << "//" << endl;
+        }
+    } else {
+        printf("Error file open\n");
     }
 }
 

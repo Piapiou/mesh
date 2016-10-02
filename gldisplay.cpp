@@ -1,24 +1,32 @@
 #include "gldisplay.h"
+#include <iterateurtriangle.h>
 #include <GL/gl.h>
 #include <mesh.h>
 #include <point.h>
 #include <QVector>
 #include <math.h>
 #include <terrain.h>
-
-#define FRUSTUM_SIZE 1.0f
+#include <time.h>
 
 GLDisplay::GLDisplay(QWidget *parent) :
     QGLWidget(parent),
     _angle(0.0f),
-    _angle2(240.0f)
+    _angle2(240.0f),
+    _frustum_size(2.0f)
 {
-    /*Mesh m = Mesh::makeCone(Point(0.0f,0.0f,-1.0f), 2.0f, 1.0f, 20);
-    m.merge(Terrain(Point(-2.0f,-2.0f,-1.25f),Point(2.0f,2.0f,-1.25f),-0.1f,0.1f,50,50).toMesh());
-    m.merge(Mesh::makeSphere(Point(0.0f,0.0f,1.0f), 0.5f, 20));
-    m.merge(Mesh::makeCylinder(Point(0.0f,0.0f,-1.25f), 0.5f, 0.5f, 20));
-    meshs.append(m);*/
-    meshs.append(Mesh(":/mesh/queen.off"));
+    Mesh m = Mesh::makeBox(Point(-1.0f,-1.0f,-1.0f), Point(1.0f,1.0f,1.0f));
+    m.setAdjTri();
+
+    QVector<Triangle> t = m.getTriangles();
+    for (int i = 0; i < t.length(); i++) {
+        printf("%d -> %d %d %d\n", i, t[i].getAdj(1), t[i].getAdj(2), t[i].getAdj(3));
+    }
+
+    //m.merge(Mesh::makeSphere(Point(0.0f,0.0f,1.0f), 0.5f, 20));
+    //m.merge(Mesh::makeCylinder(Point(0.0f,0.0f,-1.25f), 0.5f, 0.5f, 20));
+
+    //Mesh m = Mesh(":/mesh/queen.off");
+    meshs.append(m);
 }
 
 void GLDisplay::initializeGL()
@@ -41,20 +49,37 @@ void GLDisplay::initializeGL()
     glEnd();
 }
 
+float abs(float x) {
+    return (x > 0) ? x : -x;
+}
+
 void drawMesh(Mesh m) {
+
+
     QVector<Point> points = m.getVertices();
-    QVector<Triangle> triangles = m.getTriangles();
-    float color = 0.0f;
+    IterateurTriangle i = IterateurTriangle(m);
 
     glBegin(GL_TRIANGLES);
-    for (int i = 0; i < triangles.length(); i++) {
-        glColor3f(1.0f, color, color);
-        color = (color+1.0f/triangles.length());
-        glVertex3f(points[triangles[i].x()].x(), points[triangles[i].x()].y(), points[triangles[i].x()].z());
-        glVertex3f(points[triangles[i].y()].x(), points[triangles[i].y()].y(), points[triangles[i].y()].z());
-        glVertex3f(points[triangles[i].z()].x(), points[triangles[i].z()].y(), points[triangles[i].z()].z());
+    while (i.hasNext()) {
+        Triangle t = i.next();
+
+        QVector3D ab = QVector3D(   points[t.y()].x()-points[t.x()].x(),
+                                    points[t.y()].y()-points[t.x()].y(),
+                                    points[t.y()].z()-points[t.x()].z());
+        QVector3D ac = QVector3D(   points[t.z()].x()-points[t.x()].x(),
+                                    points[t.z()].y()-points[t.x()].y(),
+                                    points[t.z()].z()-points[t.x()].z());
+        Point pv = Point(ab.y()*ac.z()-ab.z()*ac.y(),
+                         ab.z()*ac.x()-ab.x()*ac.z(),
+                         ab.x()*ac.y()-ab.y()*ac.x());
+        float mult = (abs(pv.x()) > abs(pv.y())) ? ((abs(pv.x()) > abs(pv.z())) ? abs(pv.x()) : abs(pv.z())) : ((abs(pv.y()) > abs(pv.z())) ? abs(pv.y()) : abs(pv.z()));
+        glColor3f(pv.x()/mult/2+0.5,pv.y()/mult/2+0.5,pv.z()/mult/2+0.5);
+        glVertex3f(points[t.x()].x(), points[t.x()].y(), points[t.x()].z());
+        glVertex3f(points[t.y()].x(), points[t.y()].y(), points[t.y()].z());
+        glVertex3f(points[t.z()].x(), points[t.z()].y(), points[t.z()].z());
     }
     glEnd();
+
 }
 
 void GLDisplay::paintGL()
@@ -64,10 +89,26 @@ void GLDisplay::paintGL()
     glRotatef(_angle, 0.0f, 1.0f, 0.0f);
     glRotatef(_angle2, 1.0f, 0.0f, 0.0f);
 
+    glBegin(GL_LINES);
+        glColor3f(1.0f,0.0f,0.0f);
+        glVertex3f(0.0f,0.0f,0.0f);
+        glVertex3f(1.0f,0.0f,0.0f);
+    glEnd();
+    glBegin(GL_LINES);
+        glColor3f(0.0f,1.0f,0.0f);
+        glVertex3f(0.0f,0.0f,0.0f);
+        glVertex3f(0.0f,1.0f,0.0f);
+    glEnd();
+    glBegin(GL_LINES);
+        glColor3f(0.0f,0.0f,1.0f);
+        glVertex3f(0.0f,0.0f,0.0f);
+        glVertex3f(0.0f,0.0f,1.0f);
+    glEnd();
     for (int i = 0; i < meshs.length(); i++) {
         drawMesh(meshs[i]);
     }
 }
+
 
 void GLDisplay::resizeGL(int w, int h)
 {
@@ -75,9 +116,9 @@ void GLDisplay::resizeGL(int w, int h)
 
     glViewport(0, 0, w, h);
 
-    glOrtho(-FRUSTUM_SIZE, FRUSTUM_SIZE,
-            -FRUSTUM_SIZE, FRUSTUM_SIZE,
-            -FRUSTUM_SIZE, FRUSTUM_SIZE);
+    glOrtho(-_frustum_size, _frustum_size,
+            -_frustum_size, _frustum_size,
+            -_frustum_size, _frustum_size);
 
     glMatrixMode(GL_MODELVIEW);
 
@@ -112,16 +153,11 @@ void GLDisplay::mousePressEvent(QMouseEvent *event)
 
 void GLDisplay::keyPressEvent ( QKeyEvent * event ) {
     switch (event->key()) {
-    case Qt::Key_Z :
+    case Qt::Key_I : _frustum_size += 1.0f;
         break;
-    case Qt::Key_S :
-        break;
-    case Qt::Key_D :
-        break;
-    case Qt::Key_Q :
-        break;
-    default:
+    case Qt::Key_J : _frustum_size -= 1.0f;
         break;
     }
+    printf("PINGOUIN");
 }
 

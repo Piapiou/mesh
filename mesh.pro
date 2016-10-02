@@ -17,7 +17,9 @@ SOURCES += main.cpp\
     point.cpp \
     terrain.cpp \
     gldisplay.cpp \
-    triangle.cpp
+    triangle.cpp \
+    iterateurtriangle.cpp \
+    iterateurpoint.cpp
 
 HEADERS  += mainwindow.h \
     mesh.h \
@@ -25,7 +27,9 @@ HEADERS  += mainwindow.h \
     point.h \
     terrain.h \
     gldisplay.h \
-    triangle.h
+    triangle.h \
+    iterateurtriangle.h \
+    iterateurpoint.h
 
 
 LIBS += -lopengl32
@@ -35,3 +39,5 @@ FORMS += \
 
 RESOURCES += \
     rsc.qrc
+
+DISTFILES +=

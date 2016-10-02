@@ -2,4 +2,8 @@
     <qresource prefix="/mesh">
         <file>queen.off</file>
     </qresource>
+    <qresource prefix="/img">
+        <file>sky.jpg</file>
+        <file>terrain.png</file>
+    </qresource>
 </RCC>

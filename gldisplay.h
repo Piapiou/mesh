@@ -29,6 +29,7 @@ private:
 
     float _angle2;
     float _angle;
+    float _frustum_size;
     QPoint _position;
     QVector<Mesh> meshs;
 
