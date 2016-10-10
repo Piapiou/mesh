@@ -1,9 +1,8 @@
 <RCC>
+    <qresource prefix="/other">
+        <file>points.txt</file>
+    </qresource>
     <qresource prefix="/mesh">
         <file>queen.off</file>
-    </qresource>
-    <qresource prefix="/img">
-        <file>sky.jpg</file>
-        <file>terrain.png</file>
     </qresource>
 </RCC>

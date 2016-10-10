@@ -15,21 +15,23 @@ SOURCES += main.cpp\
     mesh.cpp \
     vector3d.cpp \
     point.cpp \
-    terrain.cpp \
     gldisplay.cpp \
     triangle.cpp \
-    iterateurtriangle.cpp \
-    iterateurpoint.cpp
+    triangleiterator.cpp \
+    pointiterator.cpp \
+    pointcirculator.cpp \
+    trianglecirculator.cpp
 
 HEADERS  += mainwindow.h \
     mesh.h \
     vector3d.h \
     point.h \
-    terrain.h \
     gldisplay.h \
     triangle.h \
-    iterateurtriangle.h \
-    iterateurpoint.h
+    pointiterator.h \
+    triangleiterator.h \
+    pointcirculator.h \
+    trianglecirculator.h
 
 
 LIBS += -lopengl32

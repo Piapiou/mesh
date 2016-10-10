@@ -52,5 +52,5 @@ int Triangle::getAdj(int nt) {
     case 1 : return adj1;
     case 2 : return adj2;
     case 3 : return adj3;
-    }
+    }    
 }

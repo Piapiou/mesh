@@ -4,6 +4,9 @@
 #include <QFile>
 #include <QTextStream>
 #include <QMessageBox>
+#include <pointcirculator.h>
+#include <trianglecirculator.h>
+#include <triangleiterator.h>
 
 #define PI 3.14159265
 
@@ -127,6 +130,99 @@ Mesh Mesh::makeSphere(const Point center, float rayon, int pointByArc) {
     return m;
 }
 
+bool pointIsLeftToVector(Point p1, Point p2, Point i) {
+    return ((p2.x()-p1.x())*(i.y()-p1.y())-
+            (p2.y()-p1.y())*(i.x()-p1.x()) > 0);
+}
+
+Mesh Mesh::makePlanFromTxt(const QString fileName) {
+    Mesh m = Mesh();
+
+    QFile file(fileName);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        m.vertices = QVector<Point>();
+        m.triangles = QVector<Triangle>();
+        QString line = in.readLine();
+        int nPoint = line.toInt();
+        QStringList fields;
+
+        for (int i = 0; i < nPoint; i++) {
+            line = in.readLine();
+            fields = line.split(" ");
+            m.vertices.append(Point(fields.at(0).toFloat(),fields.at(1).toFloat(),0));
+        }
+
+        m.addTriangle(Triangle(0,1,2));
+        m.addTriangle(Triangle(-1,1,0));
+        m.addTriangle(Triangle(-1,2,1));
+        m.addTriangle(Triangle(-1,0,2));
+
+        for (int i = 3; i < nPoint-1; i++) {
+            bool pointInside = true;
+            TriangleCirculator tc = TriangleCirculator(m,-1);
+            int triZWait = -1;
+            QVector<Triangle> vt = QVector<Triangle>(m.triangles);
+            while(tc.hasNext()) {
+                int tri = tc.next();
+                Triangle t = vt[tri];
+                printf(" -> (%d %d %d)", t.x(), t.y(),t.z());
+                if (!pointIsLeftToVector(m.vertices[t.y()],m.vertices[t.z()],m.vertices[i])) {
+                    printf("*");
+                    m.addTriangle(Triangle(t.z(),i,t.y()));
+                    m.removeTriangle(tri);
+                    pointInside = false;
+                }
+            }
+            printf("\n");
+            if (!pointInside) {
+                for (int tri = 0; tri < m.triangles.length(); tri++) {
+                    if (m.triangles[tri].getAdj(1) == -1)
+                }
+            }
+
+            // Cas du triangle interne
+            if (pointInside) {
+                for (int tri = 0; tri < m.triangles.length(); tri++) {
+                    Triangle t = m.getTriangles()->at(tri);
+                    if (t.x() != -1 && t.y() != -1 && t.z() != -1) {
+                        if (pointIsLeftToVector(m.vertices[t.x()],m.vertices[t.y()],m.vertices[i])
+                         && pointIsLeftToVector(m.vertices[t.y()],m.vertices[t.z()],m.vertices[i])
+                         && pointIsLeftToVector(m.vertices[t.z()],m.vertices[t.x()],m.vertices[i])) {
+                            m.addTriangle(Triangle(t.x(),i,t.y()));
+                            m.addTriangle(Triangle(t.y(),i,t.z()));
+                            m.addTriangle(Triangle(t.z(),i,t.x()));
+                            m.removeTriangle(tri);
+                            break;
+                        }
+                    }
+                }
+            }
+            // Affichage
+            for (int h = 0; h < m.triangles.length(); h++) {
+                if (m.triangles[h].x() != -1 && m.triangles[h].y() != -1 && m.triangles[h].z() != -1)
+                    printf("%d(%f,%f) %d(%f,%f) %d(%f,%f)\n",
+                       m.triangles[h].x(),m.vertices[m.triangles[h].x()].x(),m.vertices[m.triangles[h].x()].y(),
+                       m.triangles[h].y(),m.vertices[m.triangles[h].y()].x(),m.vertices[m.triangles[h].y()].y(),
+                       m.triangles[h].z(),m.vertices[m.triangles[h].z()].x(),m.vertices[m.triangles[h].z()].y());
+                else
+                    printf("%d %d %d\n",m.triangles[h].x(),m.triangles[h].y(),m.triangles[h].z());
+            }
+        }
+        m.removePoint(-1);
+        for (int x = 0; x < m.triangles.length(); x++) {
+            printf("%d(%f,%f) %d(%f,%f) %d(%f,%f)\n",
+                   m.triangles[x].x(),m.vertices[m.triangles[x].x()].x(),m.vertices[m.triangles[x].x()].y(),
+                   m.triangles[x].y(),m.vertices[m.triangles[x].y()].x(),m.vertices[m.triangles[x].y()].y(),
+                   m.triangles[x].z(),m.vertices[m.triangles[x].z()].x(),m.vertices[m.triangles[x].z()].y());
+        }
+    } else {
+        printf("Error file open\n");
+    }
+
+    return m;
+}
+
 Mesh Mesh::makeCylinder(const Point center, float height, float rayon, int pointByArc) {
     Mesh m = Mesh();
     m.vertices.append(Point(center));
@@ -199,12 +295,12 @@ Point Mesh::getMiddle() {
 }
 
 
-QVector<Point> Mesh::getVertices() {
-    return vertices;
+QVector<Point> * Mesh::getVertices() {
+    return &vertices;
 }
 
-QVector<Triangle> Mesh::getTriangles() {
-    return triangles;
+QVector<Triangle> * Mesh::getTriangles() {
+    return &triangles;
 }
 
 void Mesh::addVertice(Point v) {
@@ -280,7 +376,9 @@ void Mesh::setAdjTri() {
 
     QMap<QPair<int,int>,QPair<int,int>> mmap = QMap<QPair<int,int>,QPair<int,int>>();
     for (int i = 0; i < triangles.length(); i++) {
-
+        triangles[i].setAdj1(-1);
+        triangles[i].setAdj2(-1);
+        triangles[i].setAdj3(-1);
         QPair<int,int> t3 = mmap.find(QPair<int,int>(triangles[i].x(),triangles[i].y())).value();
         if (!t3.second)
             t3 = mmap.find(QPair<int,int>(triangles[i].y(),triangles[i].x())).value();
@@ -332,7 +430,7 @@ void Mesh::setAdjTri() {
 }
 
 void Mesh::toOBJ(QString filePath) {
-    fprintf(stderr,"Export obj to %s...\n",filePath);
+    fprintf(stderr,"Export obj...\n");
     QFile file(filePath);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream stream( &file );
@@ -347,6 +445,19 @@ void Mesh::toOBJ(QString filePath) {
     } else {
         printf("Error file open\n");
     }
+}
+
+void Mesh::removePoint(int i) {
+    for (int x = 0; x < triangles.length(); x++) {
+        if (triangles[x].x() == i || triangles[x].y() == i || triangles[x].z() == i)
+            triangles.remove(x--);
+    }
+    if (i != -1)
+        vertices.remove(i);
+}
+
+void Mesh::removeTriangle(int i) {
+    triangles.remove(i);
 }
 
 Mesh::~Mesh()

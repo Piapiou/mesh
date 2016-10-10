@@ -1,31 +1,28 @@
 #include "gldisplay.h"
-#include <iterateurtriangle.h>
+#include <triangleiterator.h>
+#include <trianglecirculator.h>
+#include <pointiterator.h>
+#include <pointcirculator.h>
 #include <GL/gl.h>
 #include <mesh.h>
 #include <point.h>
 #include <QVector>
 #include <math.h>
-#include <terrain.h>
 #include <time.h>
 
 GLDisplay::GLDisplay(QWidget *parent) :
     QGLWidget(parent),
     _angle(0.0f),
     _angle2(240.0f),
-    _frustum_size(2.0f)
+    _frustum_size(1.5f)
 {
-    Mesh m = Mesh::makeBox(Point(-1.0f,-1.0f,-1.0f), Point(1.0f,1.0f,1.0f));
-    m.setAdjTri();
-
-    QVector<Triangle> t = m.getTriangles();
-    for (int i = 0; i < t.length(); i++) {
-        printf("%d -> %d %d %d\n", i, t[i].getAdj(1), t[i].getAdj(2), t[i].getAdj(3));
-    }
+    Mesh m = Mesh::makePlanFromTxt(":/other/points.txt");
 
     //m.merge(Mesh::makeSphere(Point(0.0f,0.0f,1.0f), 0.5f, 20));
     //m.merge(Mesh::makeCylinder(Point(0.0f,0.0f,-1.25f), 0.5f, 0.5f, 20));
 
-    //Mesh m = Mesh(":/mesh/queen.off");
+    /*Mesh m = Mesh(":/mesh/queen.off");
+    m.scale(2.5);*/
     meshs.append(m);
 }
 
@@ -53,30 +50,32 @@ float abs(float x) {
     return (x > 0) ? x : -x;
 }
 
-void drawMesh(Mesh m) {
+void drawMesh(Mesh &m) {
 
 
-    QVector<Point> points = m.getVertices();
-    IterateurTriangle i = IterateurTriangle(m);
-
+    QVector<Point> * points = m.getVertices();
+    TriangleIterator i = TriangleIterator(m);
+    float color = 0.0f;
     glBegin(GL_TRIANGLES);
     while (i.hasNext()) {
         Triangle t = i.next();
 
-        QVector3D ab = QVector3D(   points[t.y()].x()-points[t.x()].x(),
-                                    points[t.y()].y()-points[t.x()].y(),
-                                    points[t.y()].z()-points[t.x()].z());
-        QVector3D ac = QVector3D(   points[t.z()].x()-points[t.x()].x(),
-                                    points[t.z()].y()-points[t.x()].y(),
-                                    points[t.z()].z()-points[t.x()].z());
+        /*QVector3D ab = QVector3D(   points->at(t.y()).x()-points->at(t.x()).x(),
+                                    points->at(t.y()).y()-points->at(t.x()).y(),
+                                    points->at(t.y()).z()-points->at(t.x()).z());
+        QVector3D ac = QVector3D(   points->at(t.z()).x()-points->at(t.x()).x(),
+                                    points->at(t.z()).y()-points->at(t.x()).y(),
+                                    points->at(t.z()).z()-points->at(t.x()).z());
         Point pv = Point(ab.y()*ac.z()-ab.z()*ac.y(),
                          ab.z()*ac.x()-ab.x()*ac.z(),
                          ab.x()*ac.y()-ab.y()*ac.x());
         float mult = (abs(pv.x()) > abs(pv.y())) ? ((abs(pv.x()) > abs(pv.z())) ? abs(pv.x()) : abs(pv.z())) : ((abs(pv.y()) > abs(pv.z())) ? abs(pv.y()) : abs(pv.z()));
-        glColor3f(pv.x()/mult/2+0.5,pv.y()/mult/2+0.5,pv.z()/mult/2+0.5);
-        glVertex3f(points[t.x()].x(), points[t.x()].y(), points[t.x()].z());
-        glVertex3f(points[t.y()].x(), points[t.y()].y(), points[t.y()].z());
-        glVertex3f(points[t.z()].x(), points[t.z()].y(), points[t.z()].z());
+        glColor3f(pv.y()/mult/2+0.5,pv.z()/mult/2+0.5,pv.x()/mult/2+0.5);*/
+        color = color + 0.07f;
+        glColor3f(color,color,color);
+        glVertex3f(points->at(t.x()).x(), points->at(t.x()).y(), points->at(t.x()).z());
+        glVertex3f(points->at(t.y()).x(), points->at(t.y()).y(), points->at(t.y()).z());
+        glVertex3f(points->at(t.z()).x(), points->at(t.z()).y(), points->at(t.z()).z());
     }
     glEnd();
 
@@ -134,11 +133,12 @@ void GLDisplay::mouseMoveEvent(QMouseEvent *event)
 {
     if( event != NULL ) {
         QPoint position = event->pos();
-
-        _angle += (position.x() - _position.x());
-        _angle2 += position.y()-_position.y();
-
-
+        if (event->buttons() & Qt::LeftButton) {
+            _angle += (position.x() - _position.x());
+            _angle2 += position.y()-_position.y();
+        } else {
+            _frustum_size += (position.x() - _position.x());
+        }
         _position = position;
 
         updateGL();
@@ -149,15 +149,16 @@ void GLDisplay::mousePressEvent(QMouseEvent *event)
 {
     if( event != NULL )
         _position = event->pos();
+    printf("MousePressEvent\n");
 }
 
 void GLDisplay::keyPressEvent ( QKeyEvent * event ) {
     switch (event->key()) {
-    case Qt::Key_I : _frustum_size += 1.0f;
+    case Qt::Key_I :
         break;
-    case Qt::Key_J : _frustum_size -= 1.0f;
+    case Qt::Key_J :
         break;
     }
-    printf("PINGOUIN");
+    printf("KeyPressEvent\n");
 }
 
