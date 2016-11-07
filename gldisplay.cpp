@@ -14,7 +14,7 @@ GLDisplay::GLDisplay(QWidget *parent) :
     QGLWidget(parent),
     _angle(0.0f),
     _angle2(240.0f),
-    _frustum_size(1.5f)
+    _frustum_size(3.0f)
 {
     Mesh m = Mesh::makePlanFromTxt(":/other/points.txt");
 
@@ -55,8 +55,9 @@ void drawMesh(Mesh &m) {
 
     QVector<Point> * points = m.getVertices();
     TriangleIterator i = TriangleIterator(m);
-    float color = 0.0f;
-    glBegin(GL_TRIANGLES);
+    float color = 0.25f;
+
+    //glBegin(GL_TRIANGLES);
     while (i.hasNext()) {
         Triangle t = i.next();
 
@@ -71,13 +72,15 @@ void drawMesh(Mesh &m) {
                          ab.x()*ac.y()-ab.y()*ac.x());
         float mult = (abs(pv.x()) > abs(pv.y())) ? ((abs(pv.x()) > abs(pv.z())) ? abs(pv.x()) : abs(pv.z())) : ((abs(pv.y()) > abs(pv.z())) ? abs(pv.y()) : abs(pv.z()));
         glColor3f(pv.y()/mult/2+0.5,pv.z()/mult/2+0.5,pv.x()/mult/2+0.5);*/
-        color = color + 0.07f;
-        glColor3f(color,color,color);
+        //color = color + 0.025f;
+        //glColor3f(color,color,color);
+        glColor3f(0,255,0);
+        glBegin(GL_LINE_LOOP);
         glVertex3f(points->at(t.x()).x(), points->at(t.x()).y(), points->at(t.x()).z());
         glVertex3f(points->at(t.y()).x(), points->at(t.y()).y(), points->at(t.y()).z());
         glVertex3f(points->at(t.z()).x(), points->at(t.z()).y(), points->at(t.z()).z());
+        glEnd();
     }
-    glEnd();
 
 }
 

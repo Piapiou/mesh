@@ -54,3 +54,11 @@ int Triangle::getAdj(int nt) {
     case 3 : return adj3;
     }    
 }
+
+bool Triangle::have(int point) {
+    return (point == p1 || point == p2 || point == p3);
+}
+
+bool Triangle::have(int point1, int point2) {
+    return have(point1) && have(point2);
+}

@@ -16,6 +16,8 @@ public:
     void setAdj2(int i);
     void setAdj3(int i);
     int getAdj(int nt);
+    bool have(int point);
+    bool have(int point1, int point2);
 private:
     int p1, p2, p3;
     int adj1, adj2, adj3;

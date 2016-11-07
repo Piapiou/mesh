@@ -21,6 +21,8 @@ public:
     static Mesh makeCylinder(const Point center, float height, float rayon, int pointByArc);
     static Mesh makeCone(const Point center, float height, float rayon, int pointByArc);
     static Mesh makePlanFromTxt(const QString fileName);
+    void flip(int p1, int p2);
+    void lawsonFlip();
     Mesh operator=(const Mesh &);
     Point getMiddle();
     ~Mesh();

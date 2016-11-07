@@ -27,7 +27,7 @@ TriangleCirculator::TriangleCirculator(Mesh &m, int sommet)
             do {
                 v.append(actualT);
                 Triangle ta = tri->at(actualT);
-                printf("%d(%d,%d,%d) (%d,%d,%d)\n",actualT,ta.x(),ta.y(),ta.z(),ta.getAdj(1),ta.getAdj(2),ta.getAdj(3));
+                //printf("%d(%d,%d,%d) (%d,%d,%d)\n",actualT,ta.x(),ta.y(),ta.z(),ta.getAdj(1),ta.getAdj(2),ta.getAdj(3));
                 if (ta.x() == sommet) {
                     actualT = ta.getAdj(3);
                     p2 = ta.y();
